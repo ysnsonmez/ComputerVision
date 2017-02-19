@@ -12,12 +12,12 @@ Assembly mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934
 Class System.Object: AutoLayout, AnsiClass, Class, Public, Serializable, BeforeFieldInit
     Void .ctor(): PrivateScope, Public, HideBySig, SpecialName, RTSpecialName
   Methods:
+    GetType(): PrivateScope, Public, HideBySig
+    GetHashCode(): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
     ToString(): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
     Equals(Object): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
     Equals(Object, Object): PrivateScope, Public, Static, HideBySig
     ReferenceEquals(Object, Object): PrivateScope, Public, Static, HideBySig
-    GetHashCode(): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask
-    GetType(): PrivateScope, Public, HideBySig
 Interface System.Runtime.Serialization.ISerializable: AutoLayout, AnsiClass, Class, Public, ClassSemanticsMask, Abstract
   Methods:
     GetObjectData(SerializationInfo, StreamingContext): PrivateScope, Public, Virtual, HideBySig, VtableLayoutMask, Abstract

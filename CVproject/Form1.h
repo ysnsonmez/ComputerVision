@@ -7,10 +7,12 @@
 #include <ctime>
 #include <string>
 #include <cmath>
+#include<sstream>
 #include "Funcs.h"
 
 namespace CVproject {
 
+	using namespace std;
 	using namespace System;
 	using namespace System::ComponentModel;
 	using namespace System::Collections;
@@ -20,15 +22,13 @@ namespace CVproject {
 	double M[11][8];
 	int threshold = 0, etiket_one = 0, etiket_two = 0;
 	int frames[10][4], **labelimage, **S_hough, **edgeDir;
-	
+	int ***h_buffer;
+
 
 	public ref class Form1 : public System::Windows::Forms::Form
 	{
+
 	private: System::Windows::Forms::Button^  btnHLine;
-
-
-
-
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^  chart1;
 	private: System::Windows::Forms::Button^  btnHisto;
 	private: System::Windows::Forms::Button^  btnBinary;
@@ -43,14 +43,10 @@ namespace CVproject {
 	private: System::Windows::Forms::Label^  label1;
 	private: System::Windows::Forms::Label^  label2;
 	private: System::Windows::Forms::ToolStripMenuItem^  refreshFormToolStripMenuItem;
-	
-	public: Bitmap^ bmpFront;
 	private: System::Windows::Forms::Button^  btnHTCircle;
-	public:
 
-	public:
-	public:
-		Bitmap^ bmpimage;
+	public: Bitmap^ bmpFront;
+	public: Bitmap^ bmpimage;
 
 		Form1(void)
 		{		
@@ -195,6 +191,7 @@ namespace CVproject {
 			this->picImage4->Location = System::Drawing::Point(272, 288);
 			this->picImage4->Name = L"picImage4";
 			this->picImage4->Size = System::Drawing::Size(250, 250);
+			this->picImage4->SizeMode = System::Windows::Forms::PictureBoxSizeMode::Zoom;
 			this->picImage4->TabIndex = 4;
 			this->picImage4->TabStop = false;
 			this->picImage4->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &Form1::picImage4_MouseClick);
@@ -239,9 +236,9 @@ namespace CVproject {
 			this->btnHLine->Name = L"btnHLine";
 			this->btnHLine->Size = System::Drawing::Size(90, 30);
 			this->btnHLine->TabIndex = 8;
-			this->btnHLine->Text = L"HTLine";
+			this->btnHLine->Text = L"Lines";
 			this->btnHLine->UseVisualStyleBackColor = true;
-			this->btnHLine->Click += gcnew System::EventHandler(this, &Form1::btnHough_Click);
+			this->btnHLine->Click += gcnew System::EventHandler(this, &Form1::btnHoughLine_Click);
 			// 
 			// chart1
 			// 
@@ -354,16 +351,16 @@ namespace CVproject {
 			// txtLow
 			// 
 			this->txtLow->Anchor = System::Windows::Forms::AnchorStyles::Top;
-			this->txtLow->Location = System::Drawing::Point(643, 360);
+			this->txtLow->Location = System::Drawing::Point(625, 359);
 			this->txtLow->Name = L"txtLow";
 			this->txtLow->Size = System::Drawing::Size(90, 26);
 			this->txtLow->TabIndex = 19;
-			this->txtLow->Text = L"150";
+			this->txtLow->Text = L"190";
 			// 
 			// txtHigh
 			// 
 			this->txtHigh->Anchor = System::Windows::Forms::AnchorStyles::Top;
-			this->txtHigh->Location = System::Drawing::Point(643, 392);
+			this->txtHigh->Location = System::Drawing::Point(625, 391);
 			this->txtHigh->Name = L"txtHigh";
 			this->txtHigh->Size = System::Drawing::Size(90, 26);
 			this->txtHigh->TabIndex = 20;
@@ -373,7 +370,7 @@ namespace CVproject {
 			// 
 			this->label1->Anchor = System::Windows::Forms::AnchorStyles::Top;
 			this->label1->AutoSize = true;
-			this->label1->Location = System::Drawing::Point(571, 366);
+			this->label1->Location = System::Drawing::Point(553, 365);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(61, 20);
 			this->label1->TabIndex = 21;
@@ -383,7 +380,7 @@ namespace CVproject {
 			// 
 			this->label2->Anchor = System::Windows::Forms::AnchorStyles::Top;
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(571, 398);
+			this->label2->Location = System::Drawing::Point(553, 397);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(60, 20);
 			this->label2->TabIndex = 22;
@@ -391,12 +388,14 @@ namespace CVproject {
 			// 
 			// btnHTCircle
 			// 
-			this->btnHTCircle->Location = System::Drawing::Point(931, 360);
+			this->btnHTCircle->Anchor = System::Windows::Forms::AnchorStyles::Top;
+			this->btnHTCircle->Location = System::Drawing::Point(739, 360);
 			this->btnHTCircle->Name = L"btnHTCircle";
 			this->btnHTCircle->Size = System::Drawing::Size(90, 30);
 			this->btnHTCircle->TabIndex = 23;
-			this->btnHTCircle->Text = L"HTCircle";
+			this->btnHTCircle->Text = L"Circles";
 			this->btnHTCircle->UseVisualStyleBackColor = true;
+			this->btnHTCircle->Click += gcnew System::EventHandler(this, &Form1::btnHTCircle_Click);
 			// 
 			// Form1
 			// 
@@ -598,260 +597,7 @@ private: System::Void btnSobel_Click(System::Object^  sender, System::EventArgs^
 		catch (...){}
 		picImage3->Image = Sobel_bmp;
 			
-			
-}
-private: System::Void btnHough_Click(System::Object^  sender, System::EventArgs^  e) 
-{
-			 Bitmap^ Houghspace = (Bitmap^)picImage1->Image;
-			 Bitmap^ Lines = (Bitmap^)picImage2->Image;
-			 BMP img = read_image("canny.bmp");
-			 Color hColor;
-
-			 int w = img.bmpinfo.bmpwidth;
-			 int h = img.bmpinfo.bmpheight;
-			 int w_kare = pow(w,2);
-			 int h_kare = pow(h,2);
-
-			 int r_max = 0, r_norm = 0;
-			 r_max = (int)sqrt(w_kare + h_kare);
-			 //if (w >= h)
-				// r_max = 2*(w*sqrt(2));
-			 //else
-				// r_max = 2*(h*sqrt(2));
-			 r_norm = (r_max / 2);
-
-			 int **img_pix;
-			 img_pix = new int*[w];
-			 for (int i = 0; i < w; i++)
-			 {
-				 img_pix[i] = new int[h];
-			 }
-
-			 for (int i = 0; i < w; i++)
-			 for (int j = 0; j < h; j++)
-				 img_pix[i][j] = (int)img.pixels[i][j].red;
-
-			 					// r-theta uzayý
-			 S_hough = new int*[r_max];
-			 for (int i = 0; i < r_max; i++)
-			 {									
-				 S_hough[i] = new int[180];
-			 }
-
-			 for (int i = 0; i < r_max; i++) // reset hough space
-			 for (int j = 0; j < 180; j++)
-				 S_hough[i][j] = 0;
-
-			 // x ve y biliniyor. denklem -> d = x.cos(theta) + y.sin(theta)   --> hough uzayý (d,theta) uzayý
-			 int d = 0;
-			
-			 //int d_new = (int)(r_size / 2);
-			// double intensity = 0.00;
-			 ofstream yaz("hspace.txt");
-			 for (int x = 0; x < w; x++)
-			 {
-				 for (int y = 0; y < h; y++)
-				 {
-						
-					 for (int theta = 0; theta < 180; theta++)
-					 {
-						 d = (x - w / 2)*cos(theta*PI / 180) + (y - h / 2)*sin(theta*PI / 180);
-						 /*if (d < 0)
-							 d += r_max;*/
-						 
-						 S_hough[d + r_norm][theta] += img_pix[x][y];
-						// S_hough[d + r_norm][theta]++;
-						 d = 0;
-					 }
-
-				 }
-				 
-			 }
-			 int wid = r_max, he = 180;
-			 double kx, ky;
-			 Point p1, p2;
-			 float angle = 0.00, d_buf = 0.0;;
-			 //Image^ a = picImage4->Image;
-			 Bitmap^ hspace = gcnew Bitmap(wid, he);
-			 Graphics^ _L = Graphics::FromImage(Lines);   // Draw lines on grayimage.
-			 Graphics^ _H= Graphics::FromImage(hspace);	 // linear probability of occurrence. draw circle.
-
-			 for (int d = 0; d < r_max; d++)
-			 {
-				 for (int theta = 0; theta < 180; theta++)
-				 {
-					 S_hough[d][theta] = (int)(S_hough[d][theta] / 150); // hough space normalization
-
-					 if (S_hough[d][theta]>=255)
-					 {
-						 rtbDeger->Text += "Lines  :"+"d : " + d.ToString() + "  " + "angle : " + theta.ToString() + "\n";
-						 angle = theta*PI / 180;
-						 d_buf = (float)(d - r_norm);
-
-
-						 if (theta >= 45 && theta <= 135)	      
-						 {
-							  //y = (r - x cos(t)) / sin(t)  
-							
-							 p1.X= 0;
-							 
-							 p1.Y = (double)((d_buf - ((p1.X - (w / 2)) * cos(angle))) / sin(angle) + (h / 2)) ;
-							 
-							 p2.X= w;
-							 
-							 p2.Y = (double)((d_buf - ((p2.X - (w / 2)) * cos(angle))) / sin(angle) + (h / 2)) ;
-							 
-						 }
-						 
-						 else
-						
-						 {
-						
-							 //x = (r - y sin(t)) / cos(t);  
-							 
-							 p1.Y = 0;
-							 
-							 p1.X = (double)((d_buf - ((p1.Y - (h / 2)) * sin(angle))) / cos(angle) + (w / 2)) ;
-							 
-							 p2.Y = h;
-							 
-							 p2.X = (double)((d_buf - ((p2.Y - (h / 2)) * sin(angle))) / cos(angle) + (w / 2)) ;
-							 
-						 }
-						 _L->DrawLine(Pens::Red, p1, p2);
-						 hspace->SetPixel(d, theta, hColor.FromArgb(255, 255, 255));
-					 }
-					 else
-						 hspace->SetPixel(d, theta, hColor.FromArgb(S_hough[d][theta], S_hough[d][theta], S_hough[d][theta]));
-					 //yaz << S_hough[d][theta] << " ";
-					 if (hspace->GetPixel(d, theta).R == 255)
-					 {
-						 hspace->SetPixel(d , theta, hColor.Red);
-					 }
-						
-				 }
-				 //yaz << endl;
-			 }
-			 picImage4->SizeMode = PictureBoxSizeMode::StretchImage;
-			 picImage4->Image = hspace;
-			 picImage1->Image = Lines;
-			 hspace->Save("Lhough.bmp");
-
-
-
-			// Bitmap^ Houghspace = (Bitmap^)picImage1->Image;
-			// BMP img = read_image("sobelimage.bmp");
-			// Color hColor;
-
-			// int w = img.bmpinfo.bmpwidth;
-			// int h = img.bmpinfo.bmpheight;
-
-			//
-			// int Rmax, R, x = 0, y = 0, Rind;
-			// double intensity = 0, maxintensity;
-
-			// if (h < w) Rind = h / 2;
-			// else Rind = w / 2;
-
-			// /*double ***h_buffer;
-			// h_buffer = new double**[w];
-			// for (int i = 0; i<w; i++)
-			// {
-			//	 h_buffer[i] = new double*[h];
-			//	 for (int k = 0; k < h; k++)
-			//		 h_buffer[i][k] = new double[Rind];
-			// }
-			// 
-			// double *h_buffer, *h_normPtr;
-			// h_buffer = new double[w*h*Rind];	// hough buffer
-			// h_normPtr = new double[w*h];		// hough normalization
-			// 
-			// double *houghPtr;
-			// houghPtr = h_buffer;
-
-			// for (int k = 0; k < w*h*Rind; k++)  // houghPtr reset
-			// {
-			//	 *houghPtr= 0;
-			//	 houghPtr++;
-			// }
-
-			// for (int k = 0; k < w*h; k++)		// h_normPtr reset
-			// {
-			//	 *h_normPtr = 0;
-			//	 h_normPtr++;
-			// }
-
-
-			// int **pixels;
-			// pixels = new int*[w];
-			// for (int i = 0; i < w; i++)
-			// {
-			//	 pixels[i] = new int[h];
-			// }
-
-			// for (int i = 0; i < w; i++)
-			// {
-			//	 for (int j = 0; j < h; j++)
-			//	 {
-			//		 pixels[i][j] = (int)(img.pixels[i][j].red);
-			//	 }
-			// }
-
-			// // circle hough transform
-			// houghPtr = h_buffer;
-			// for (int a = 0; a < w; a++)
-			// for (int b = 0; b < h; b++)
-			// {
-			//		if (a >= b) Rmax = b;
-			//		else Rmax = a;
-			//	
-			//		for (R = 1; R <= Rmax; R++)
-			//		{
-			//			for (int theta = 0; theta <= 360; theta++)
-			//			{
-			//				x = a + R*cos(theta);
-			//				y = b + R*sin(theta);
-			//			
-			//				if (x < w && y < h)
-			//					intensity = intensity + (double)pixels[x][y];
-			//			}
-
-			//			houghPtr = houghPtr + a*h*Rind + b*Rind + R;
-			//			*houghPtr = intensity;
-			//			houghPtr = houghPtr - a*h*Rind - b*Rind - R;
-			//			//houghPtr = h_buffer;			 // load the starting address
-			//			//h_buffer[a][b][R] = intensity;
-			//			intensity = 0;
-			//		}
-			// }
-
-			//// normalization
-			////houghPtr = h_buffer;			 // load the starting address
-			//for (int k = 0; k < w ; k++)
-			//for (int l = 0; l < h; l++)
-			//{
-			//	for (int m = 0; m < Rind; m++)
-			//	{
-			//		*h_normPtr += *houghPtr / 360.0;
-			//		houghPtr++;
-			//	}
-			//	houghPtr -= (Rind - 1);
-
-			//	if (*h_normPtr > 255)
-			//		Houghspace->SetPixel(k, l, hColor.FromArgb(255, 255, 255));
-			//	else if (*h_normPtr < 0)
-			//		Houghspace->SetPixel(k, l, hColor.FromArgb(0, 0, 0));
-			//	else
-			//		Houghspace->SetPixel(k, l, hColor.FromArgb(*h_normPtr, *h_normPtr, *h_normPtr));
-			//	h_normPtr++;
-			//	
-			//}
-
-			// picImage4->Image = Houghspace;
-			// Houghspace->Save("houghspace.bmp");
-			
-
-
+		delete pixelsPtr;
 }
 private: System::Void btnHisto_Click(System::Object^  sender, System::EventArgs^  e) 
 {
@@ -884,9 +630,9 @@ private: System::Void btnHisto_Click(System::Object^  sender, System::EventArgs^
 			 }
 
 			 // show histogram
-			 for (int i = 1; i <= 256; i++)
+			 for (int i = 0; i <= 255; i++)
 			 {
-				 this->chart1->Series["Intensity"]->Points->AddXY(i, histo[i]);
+				 chart1->Series["Intensity"]->Points->AddXY(i, histo[i]);
 			 }
 			 
 			 // resimdeki parlaklýðýn resimde bulunma olasýlýðý
@@ -922,6 +668,8 @@ private: System::Void btnHisto_Click(System::Object^  sender, System::EventArgs^
 				 }
 			 }
 			 MessageBox::Show("Eþik Deðeri (Intensity): "+threshold.ToString()+"  "+"Pixel sayýsý: "+histo[threshold].ToString());
+
+
 }
 private: System::Void btnBinary_Click(System::Object^  sender, System::EventArgs^  e) 
 {
@@ -954,9 +702,8 @@ private: System::Void btnBinary_Click(System::Object^  sender, System::EventArgs
 private: System::Void btnLabel_Click(System::Object^  sender, System::EventArgs^  e) 
 {
 				
-				Bitmap^ limage = gcnew Bitmap("binaryimage.bmp");
-				BMP Binaryimage = read_image("binaryimage.bmp");
-				Color lColor;
+			 Bitmap^ limage =(Bitmap^) picImage1->Image;
+			 BMP Binaryimage = read_image("binaryimage.bmp");
 
 				int width = Binaryimage.bmpinfo.bmpwidth;
 				int height = Binaryimage.bmpinfo.bmpheight;
@@ -1098,7 +845,7 @@ private: System::Void btnLabel_Click(System::Object^  sender, System::EventArgs^
 
 
 				//-------- Nesne say ve etiket no düzenle ------------//
-				ofstream yaz("label.txt");
+				//ofstream yaz("label.txt");
 				int ara = 0, objCount = 0;
 				for (int t = 1; t <= 50; t++)
 				{
@@ -1128,39 +875,51 @@ private: System::Void btnLabel_Click(System::Object^  sender, System::EventArgs^
 				/********************************************************/
 
 				/*Debug Labelling and Painting*/
-				array<Color>^colors = { Color::Black, Color::Red, Color::Green, Color::Blue, Color::Yellow, Color::Chocolate, Color::Gold, Color::Pink, Color::Purple, Color::Brown, Color::Cyan };
+				array<Color>^colors = gcnew array<Color>
+				{
+					Color::Blue,    
+					Color::Red,     
+					Color::Green,   
+					Color::Yellow,  
+					Color::Magenta, 
+					Color::Pink,    
+					Color::Gray,    
+					Color::Orange,  
+					Color::Brown,   
+					Color::Beige,
+					Color::Chocolate,
+					Color::Aqua,
+					Color::Bisque,
+					Color::Cyan
+				}; 
 
 				for (int i = 0; i < width; i++)
 				{
 					for (int j = 0; j < height; j++)
 					{
+						if (labelimage[i][j] <= 10)
 						limage->SetPixel(i, j, colors[(labelimage[i][j])]);
-						yaz << labelimage[i][j];
+						//yaz << labelimage[i][j];
 					}
-					yaz << endl;
+					//yaz << endl;
 				}
 				/***************************/
-				picImage4->SizeMode = PictureBoxSizeMode::Normal;
+				picImage4->SizeMode = PictureBoxSizeMode::Zoom;
 				picImage4->Image = limage;
 
 				//-------------------baunding-------------//
-				int *objects;
-				objects = new int[objCount + 1];
+				//MessageBox::Show(objCount.ToString());
 				
-				for (int i = 0; i <= objCount; i++)
-					objects[i] = i;
-				for (int index = 0; index <= objCount; index++)
+;
+				for (int index = 1; index <= objCount; index++)
 				{
-					if (objects[index] == 0) continue;
-
 					int left = width, right = 0, top = height, low = 0;
 					for (int i = 0; i < width; i++)
 					{
 						for (int j = 0; j < height; j++)
 						{
-							if (objects[index] == labelimage[i][j])
+							if ( index == labelimage[i][j])
 							{
-
 								if (i < left)
 									left = i;
 								if (i > right)
@@ -1177,43 +936,23 @@ private: System::Void btnLabel_Click(System::Object^  sender, System::EventArgs^
 					frames[index][2] = top;
 					frames[index][3] = low;
 				}
-				
+				delete binary;
 				//MessageBox::Show(frames[1][0].ToString() + "***" + frames[1][1].ToString() + "***" + frames[1][2].ToString() + "***" + frames[1][3].ToString());
 		
 }
 private: System::Void btnMoment_Click(System::Object^  sender, System::EventArgs^  e) 
 {
-			// ifstream oku("label.txt");
-			 BMP img = read_image("binary.bmp");
+
+			 BMP img = read_image("binaryimage.bmp");
 
 			 int w = img.bmpinfo.bmpwidth;
 			 int h = img.bmpinfo.bmpheight;
 			 int left, right, top, low;
 
-
-			 /* int **labelmatrix;
-			 labelmatrix = new int*[w + 1];
-			 for (int i = 0; i < w + 1; i++)
-			 {
-			  labelmatrix[i] = new int[h + 1];
-			 }*/
-
-			 //for (int j = 0; j < h + 1; j++) // labels reading
-			 //for (int i = 0; i < w + 1; i++)
-			 //{
-				// oku>>(int)labelmatrix[i][j];
-			 //}
-
-			 int obje[11];
-			 for (int i = 0; i <= 10; i++)
-			 {
-				 obje[i] = i;
-			 }
-			 
 			 double u[4][4];
 			 for (int index = 0; index <= 10; index++)
 			 {
-					 if (obje[index] == 0) continue; // arkaplan etiketi
+					 if (index == 0) continue; // arkaplan etiketi
 
 					 left = frames[index][0];
 					 right = frames[index][1];
@@ -1232,9 +971,9 @@ private: System::Void btnMoment_Click(System::Object^  sender, System::EventArgs
 					 {
 						 for (int j = 0; j < h; j++)
 						 {
-							 if (i >= left && i <= right && j >= top && j <= low && obje[index] == labelimage[i][j])
+							 if (i >= left && i <= right && j >= top && j <= low && index == labelimage[i][j])
 								 a_frame[i - left][j - top] = 1;
-							 else if (i >= left && i <= right && j >= top && j <= low && obje[index] != labelimage[i][j])
+							 else if (i >= left && i <= right && j >= top && j <= low && index != labelimage[i][j])
 								 a_frame[i - left][j - top] = 0;
 						 }
 					 }
@@ -1295,92 +1034,17 @@ private: System::Void btnMoment_Click(System::Object^  sender, System::EventArgs
 					 }
 
 					 rtbDeger->Text +="left-right , top-low: "+ left.ToString() + "-" + right.ToString() + " ," + top.ToString() + "-" + low.ToString() + "\n\n";
-
+					 delete a_frame;
 			 }
-
-
-			
-
-
-
-			 //MessageBox::Show("M[1][1]: " + M[1][1] + "   M[1][2]: " + M[1][2] + "   M[1][3]: " + M[1][3] + "   M[1][4]: " + M[1][4] + "   M[1][5]: " + M[1][5] + "   M[1][6]: " + M[1][6] + "   M[1][7]: " + M[1][7] +
-				//			  "M[2][1]: " + M[2][1] + "   M[2][2]: " + M[2][2] + "   M[2][3]: " + M[2][3] + "   M[2][4]: " + M[2][4] + "   M[2][5]: " + M[2][5] + "   M[2][6]: " + M[2][6] + "   M[2][7]: " + M[2][7] +
-				//			  "M[3][1]: " + M[3][1] + "   M[3][2]: " + M[3][2] + "   M[3][3]: " + M[3][3] + "   M[3][4]: " + M[3][4] + "   M[3][5]: " + M[3][5] + "   M[3][6]: " + M[3][6] + "   M[3][7]: " + M[3][7] +
-				//			  "M[4][1]: " + M[4][1] + "   M[4][2]: " + M[4][2] + "   M[4][3]: " + M[4][3] + "   M[4][4]: " + M[4][4] + "   M[4][5]: " + M[4][5] + "   M[4][6]: " + M[4][6] + "   M[4][7]: " + M[4][7] +
-				//			  "M[5][1]: " + M[5][1] + "   M[5][2]: " + M[5][2] + "   M[5][3]: " + M[5][3] + "   M[5][4]: " + M[5][4] + "   M[5][5]: " + M[5][5] + "   M[5][6]: " + M[5][6] + "   M[5][7]: " + M[5][7] +
-				//			  "M[6][1]: " + M[6][1] + "   M[6][2]: " + M[6][2] + "   M[6][3]: " + M[6][3] + "   M[6][4]: " + M[6][4] + "   M[6][5]: " + M[6][5] + "   M[6][6]: " + M[6][6] + "   M[6][7]: " + M[6][7] +
-				//			  "M[7][1]: " + M[7][1] + "   M[7][2]: " + M[7][2] + "   M[7][3]: " + M[7][3] + "   M[7][4]: " + M[7][4] + "   M[7][5]: " + M[7][5] + "   M[7][6]: " + M[7][6] + "   M[7][7]: " + M[7][7] +
-				//			  "M[8][1]: " + M[8][1] + "   M[8][2]: " + M[8][2] + "   M[8][3]: " + M[8][3] + "   M[8][4]: " + M[8][4] + "   M[8][5]: " + M[8][5] + "   M[8][6]: " + M[8][6] + "   M[8][7]: " + M[8][7] +
-				//			  "M[9][1]: " + M[9][1] + "   M[9][2]: " + M[9][2] + "   M[9][3]: " + M[9][3] + "   M[9][4]: " + M[9][4] + "   M[9][5]: " + M[9][5] + "   M[9][6]: " + M[9][6] + "   M[9][7]: " + M[9][7] +
-				//			  "M[10][1]: " + M[10][1] + "   M[10][2]: " + M[10][2] + "   M[10][3]: " + M[10][3] + "   M[10][4]: " + M[10][4] + "   M[10][5]: " + M[10][5] + "   M[10][6]: " + M[10][6] + "   M[10][7]: " + M[10][7]);
-
-
-
-			 //int **labelmatrix;
-			 //labelmatrix = new int*[w + 1];
-			 //for (int i = 0; i < w + 1; i++)
-			 //{
-				// labelmatrix[i] = new int[h + 1];
-			 //}
-
-			 //int *row, *coll;
-			 //row = new int[w];
-			 //coll = new int[h];
-
-			 //for (int i = 0; i < w;i++) //reset row array
-			 //row[i]= 0;
-			 //for (int i = 0; i < h;i++) //reset coll array
-			 //coll[i] = 0;
-
-			 //for (int j = 0; j < h + 1; j++) // labels reading
-			 //for (int i = 0; i < w + 1; i++)
-			 //{
-				//// oku.read((int*)labelmatrix[i][j],4);
-			 //}
-
-
-			 //int Rmaxfrequency[100], Cmaxfrequency[100];
-			 //for (int lbl = 1; lbl <= 10; lbl++)
-			 //{
-				// for (int j = 0; j < h; j++)  
-				//	 for (int i = 0;  i < w;  i++)  // row frequency
-				//		 if (labelmatrix[i][j]==lbl)
-				//			 row[j]++;
-				//for (int i = 0; i < w; i++)
-				//	for (int j = 0; j < h; j++)    // coll frequency
-				//		 if (labelmatrix[i][j] == lbl)
-				//			 coll[i]++;
-			 //
-			 //
-				//sirala(row);
-				//sirala(coll);
-				//Rmaxfrequency[lbl] = row[w-1];
-				//Cmaxfrequency[lbl] = coll[h-1];
-			 //
-				//for (int i = 0; i < w; i++) //reset row array
-				//	row[i] = 0;
-				//for (int i = 0; i < h; i++) //reset coll array
-				//	coll[i] = 0;
-			 //}
-			
-			 //ofstream lblyaz("lbl.txt");
-			 //for (int i = 0; i < 100; i++)
-			 //{
-				// lblyaz << Rmaxfrequency[i] << "  " << Cmaxfrequency[i]<<endl;
-			 //}
 }
 private: System::Void btnErosion_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) 
-{
-
-			 //for (int n = 0; n <25; n++)
-			 //{
-
-			
-			 Bitmap^ b_image = gcnew Bitmap("binaryimage.bmp");
-			 BMP Binaryimage = read_image("binaryimage.bmp");
-			 Color lColor;
-			 int width = Binaryimage.bmpinfo.bmpwidth;
-			 int height = Binaryimage.bmpinfo.bmpheight;
+{			
+			 Bitmap^ b_image = (Bitmap^)picImage3->Image;
+			 
+			 Color lColor; 
+			 
+			 int width = b_image->Width;		//Binaryimage.bmpinfo.bmpwidth;
+			 int height = b_image->Height;		//Binaryimage.bmpinfo.bmpheight;
 
 			 int **binary;
 			 binary = new int*[width + 1];
@@ -1391,7 +1055,7 @@ private: System::Void btnErosion_MouseClick(System::Object^  sender, System::Win
 			 {
 				 for (int j = 0; j < height; j++)
 				 {
-					 if ((int)(Binaryimage.pixels[i][j].red) == 0)  // creating binary image 0-1
+					 if ((int)(b_image->GetPixel(i,j).R == 0) ) // creating binary image 0-1
 						 binary[i][j] = 0;
 					 else
 						 binary[i][j] = 1;
@@ -1401,33 +1065,35 @@ private: System::Void btnErosion_MouseClick(System::Object^  sender, System::Win
 			 for (int i = 1; i < width ; i++)
 			 for (int j = 1; j < height ; j++)
 			 {
-				 if (binary[i][j] == 1)
+				 if (binary[i][j] == 0)
 				 {
-					 if (binary[i][j + 1] == 1 && binary[i + 1][j] == 1 && binary[i+1][j+1]==1 && binary[i+1][j-1]==1)
-						 binary[i][j] = 1;
-					 else
+					 if (binary[i][j + 1] == 0 && binary[i + 1][j] == 0 && binary[i + 1][j + 1] == 0 && binary[i + 1][j - 1] == 0)
 						 binary[i][j] = 0;
+					 else
+						 binary[i][j] = 1;
 				 }
 				 b_image->SetPixel(i, j, lColor.FromArgb((binary[i][j] * 255), (binary[i][j] * 255), (binary[i][j] * 255)));
-				 Binaryimage.pixels[i][j].red = binary[i][j] * 255;
-				 Binaryimage.pixels[i][j].green = binary[i][j] * 255;
-				 Binaryimage.pixels[i][j].blue = binary[i][j] * 255;
+				
 			 }
 
+			 
 			 picImage3->Image = b_image;
-			 int a=(int)write_image(Binaryimage, "binaryimage.bmp");
-			// MessageBox::Show(a.ToString());
-			 //}
+			 b_image->Save("binaryimage.bmp");
+			 delete binary;
+			 
 			 
 }
 private: System::Void btnDilation_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) 
 {
-			 Bitmap^ b_image = gcnew Bitmap("binaryimage.bmp");
-			 BMP Binaryimage = read_image("binaryimage.bmp");
-			 Color lColor;
-			 int width = Binaryimage.bmpinfo.bmpwidth;
-			 int height = Binaryimage.bmpinfo.bmpheight;
+	
+			 Bitmap^ b_image = (Bitmap^)picImage3->Image;
 
+			 Color lColor;
+			 int width = b_image->Width;		//Binaryimage.bmpinfo.bmpwidth;
+			 int height = b_image->Height;		//Binaryimage.bmpinfo.bmpheight;
+			
+			 
+			 
 			 int **binary;
 			 binary = new int*[width + 1];
 			 for (int i = 0; i < width + 1; i++)
@@ -1437,7 +1103,9 @@ private: System::Void btnDilation_MouseClick(System::Object^  sender, System::Wi
 			 {
 				 for (int j = 0; j < height; j++)
 				 {
-					 if ((int)(Binaryimage.pixels[i][j].red) == 0)  // creating binary image 0-1
+					 //MessageBox::Show(b_image->GetPixel(i, j).R.ToString() + "  "+b_image->GetPixel(i, j).G.ToString());
+
+					 if ((int)(b_image->GetPixel(i,j).R == 0))  // creating binary image 0-1
 						 binary[i][j] = 0;
 					 else
 						 binary[i][j] = 1;
@@ -1449,19 +1117,18 @@ private: System::Void btnDilation_MouseClick(System::Object^  sender, System::Wi
 			 {
 				 if (binary[i][j] == 1)
 				 {
-					 if (binary[i][j + 1] == 1 || binary[i + 1][j] == 1 || binary[i + 1][j + 1] == 1 || binary[i + 1][j - 1] == 1)
-						 binary[i][j] = 1;
-					 else
+					 if (binary[i][j + 1] == 0 || binary[i + 1][j] == 0 || binary[i + 1][j + 1] == 0 || binary[i + 1][j - 1] == 0)
 						 binary[i][j] = 0;
+					 else
+						 binary[i][j] = 1;
 				 }
 				 b_image->SetPixel(i, j, lColor.FromArgb((binary[i][j] * 255), (binary[i][j] * 255), (binary[i][j] * 255)));
-				 Binaryimage.pixels[i][j].red = binary[i][j] * 255;
-				 Binaryimage.pixels[i][j].green = binary[i][j] * 255;
-				 Binaryimage.pixels[i][j].blue = binary[i][j] * 255;
+				 
 			 }
-
+			 
 			 picImage3->Image = b_image;
-			 int a = (int)write_image(Binaryimage, "binaryimage.bmp");
+			 b_image->Save("binaryimage.bmp");
+			 delete binary;
 
 }
 private: System::Void btnCanny_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) 
@@ -1589,39 +1256,43 @@ private: System::Void btnCanny_MouseClick(System::Object^  sender, System::Windo
 		picImage1->Image = hysteresis;
 		picImage4->Image = non_max;
 		non_max->Save("canny.bmp");
+		delete edge;
+		delete pix;
 
 }
 private: System::Void picImage4_MouseClick(System::Object^  sender, System::Windows::Forms::MouseEventArgs^  e) 
 {
-			 //int X = e->X;
-			 //int Y = e->Y;
-			 //
-			 //BMP im = read_image("grayscale.bmp");
-			 //int w = im.bmpinfo.bmpwidth, h = im.bmpinfo.bmpheight;
+			 int X = e->X;
+			 int Y = e->Y;
+			 
+			 BMP im = read_image("grayscale.bmp");
+			 int w = im.bmpinfo.bmpwidth, h = im.bmpinfo.bmpheight;
+			 picImage4->SizeMode = PictureBoxSizeMode::StretchImage;
+			 
+			 double error = 0.00; 
 
-			 //
-			 //double error = 0.00; 
-
-			 //MessageBox::Show(("X Location : " + X.ToString() + " Y Location :  " + Y.ToString()));
-			 //if (etiket_one == 0)
-				// etiket_one = labelimage[X][Y];
-			 //else if (etiket_two == 0)
-				// etiket_two = labelimage[X][Y];
-
-			 //MessageBox::Show(("one Location : " + etiket_one.ToString() + " two Location :  " + etiket_two.ToString()));
+			 MessageBox::Show(("X Location : " + X.ToString() + " Y Location :  " + Y.ToString()));
+			 if (etiket_one == 0)
+				 etiket_one = labelimage[X][Y];
+			 else if (etiket_two == 0)
+			 {
+				 etiket_two = labelimage[X][Y];
+				 MessageBox::Show(("one Location : " + etiket_one.ToString() + " two Location :  " + etiket_two.ToString()));
+			 }
 
 
-			 //if (etiket_one != 0 && etiket_two != 0)
-			 //{
-				// for (int i = 1; i < 8; i++)
-				// {
-				//	 error += pow((M[etiket_two][i] - M[etiket_one][i]), 2.00);
-				// }
-				// error = log1p(sqrt(error));
-				// etiket_one = 0;
-				// etiket_two = 0;
-				// MessageBox::Show("Karesel hata: " + error.ToString());
-			 //}
+
+			 if (etiket_one != 0 && etiket_two != 0)
+			 {
+				 for (int i = 1; i < 8; i++)
+				 {
+					 error += pow((M[etiket_two][i] - M[etiket_one][i]), 2.00);
+				 }
+				 error = log1p(sqrt(error));
+				 etiket_one = 0;
+				 etiket_two = 0;
+				 MessageBox::Show("Karesel hata: " + error.ToString());
+			 }
 
 
 
@@ -1629,6 +1300,236 @@ private: System::Void picImage4_MouseClick(System::Object^  sender, System::Wind
 }
 private: System::Void refreshFormToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
 			 Application::Restart();
+}
+private: System::Void btnHoughLine_Click(System::Object^  sender, System::EventArgs^  e) {
+
+			 Bitmap^ Houghspace = (Bitmap^)picImage1->Image;
+			 Bitmap^ Lines = (Bitmap^)picImage1->Image;
+			 BMP img = read_image("canny.bmp");
+			 Color hColor;
+
+			 int w = img.bmpinfo.bmpwidth;
+			 int h = img.bmpinfo.bmpheight;
+			 int w_kare = pow(w, 2);
+			 int h_kare = pow(h, 2);
+
+			 int r_max = 0, r_norm = 0;
+			 r_max = (int)sqrt(w_kare + h_kare);
+			 //if (w >= h)
+			 // r_max = 2*(w*sqrt(2));
+			 //else
+			 // r_max = 2*(h*sqrt(2));
+			 r_norm = (r_max / 2);
+
+			 int **img_pix;
+			 img_pix = new int*[w];
+			 for (int i = 0; i < w; i++)
+			 {
+				 img_pix[i] = new int[h];
+			 }
+
+			 for (int i = 0; i < w; i++)
+			 for (int j = 0; j < h; j++)
+				 img_pix[i][j] = (int)img.pixels[i][j].red;
+
+			 // r-theta uzayý
+			 S_hough = new int*[r_max];
+			 for (int i = 0; i < r_max; i++)
+			 {
+				 S_hough[i] = new int[180];
+			 }
+
+			 for (int i = 0; i < r_max; i++) // reset hough space
+			 for (int j = 0; j < 180; j++)
+				 S_hough[i][j] = 0;
+
+			 // x ve y biliniyor. denklem -> d = x.cos(theta) + y.sin(theta)   --> hough uzayý (d,theta) uzayý
+			 int d = 0;
+			 //int d_new = (int)(r_size / 2);
+			 // double intensity = 0.00;
+			// ofstream yaz("hspace.txt");
+			 for (int x = 0; x < w; x++)
+			 {
+				 for (int y = 0; y < h; y++)
+				 {
+					 if (img_pix[x][y]==255)
+					 for (int theta = 0; theta < 180; theta++)
+					 {
+						 d = (x - w / 2)*cos(theta*PI / 180) + (y - h / 2)*sin(theta*PI / 180);
+						 /*if (d < 0)
+						 d += r_max;*/
+
+						 //S_hough[d + r_norm][theta] += img_pix[x][y];
+						 S_hough[d + r_norm][theta]++;
+						 d = 0;
+					 }
+				 }
+			 }
+			 int wid = r_max, he = 180;
+			 double kx, ky;
+			 Point p1, p2;
+			 float angle = 0.00, d_buf = 0.0;;
+			 //Image^ a = picImage4->Image;
+			 Bitmap^ hspace = gcnew Bitmap(wid, he);
+			 Graphics^ _L = Graphics::FromImage(Lines);   // Draw lines on grayimage.
+			 Graphics^ _H = Graphics::FromImage(hspace);	 // linear probability of occurrence. draw circle.
+
+			 for (int d = 0; d < r_max; d++)
+			 {
+				 for (int theta = 0; theta < 180; theta++)
+				 {
+					 //S_hough[d][theta] = (int)(S_hough[d][theta] / 150); // hough space normalization
+
+					 if (S_hough[d][theta] >= 80)
+					 {
+						 rtbDeger->Text += "Lines  :" + "d : " + d.ToString() + "  " + "angle : " + theta.ToString() + "\n";
+						 angle = theta*PI / 180;
+						 d_buf = (float)(d - r_norm);
+
+
+						 if (theta >= 45 && theta <= 135)
+						 {
+							 //y = (r - x cos(t)) / sin(t)  
+
+							 p1.X = 0;
+
+							 p1.Y = (double)((d_buf - ((p1.X - (w / 2)) * cos(angle))) / sin(angle) + (h / 2));
+
+							 p2.X = w;
+
+							 p2.Y = (double)((d_buf - ((p2.X - (w / 2)) * cos(angle))) / sin(angle) + (h / 2));
+
+						 }
+
+						 else
+
+						 {
+
+							 //x = (r - y sin(t)) / cos(t);  
+
+							 p1.Y = 0;
+
+							 p1.X = (double)((d_buf - ((p1.Y - (h / 2)) * sin(angle))) / cos(angle) + (w / 2));
+
+							 p2.Y = h;
+
+							 p2.X = (double)((d_buf - ((p2.Y - (h / 2)) * sin(angle))) / cos(angle) + (w / 2));
+
+						 }
+						 _L->DrawLine(Pens::Red, p1, p2);
+						 hspace->SetPixel(d, theta, hColor.FromArgb(255, 255, 255));
+					 }
+					 else
+						 hspace->SetPixel(d, theta, hColor.FromArgb(S_hough[d][theta], S_hough[d][theta], S_hough[d][theta]));
+					 //yaz << S_hough[d][theta] << " ";
+					 //if (hspace->GetPixel(d, theta).R == 255)
+					 //{
+						// hspace->SetPixel(d, theta, hColor.Red);
+					 //}
+
+				 }
+				 //yaz << endl;
+			 }
+			 picImage4->SizeMode = PictureBoxSizeMode::StretchImage;
+			 picImage4->Image = hspace;
+			 picImage1->Image = Lines;
+			 hspace->Save("Lhough.bmp");
+
+			 delete img_pix;
+
+}
+private: System::Void btnHTCircle_Click(System::Object^  sender, System::EventArgs^  e) {
+
+			  Bitmap^ Houghspace= gcnew Bitmap("grayscale.bmp");
+			  BMP img = read_image("canny.bmp");
+			  Color hColor;
+			  Graphics^ _circle = Graphics::FromImage(Houghspace);
+			  RectangleF rec;
+
+			  int w = img.bmpinfo.bmpwidth;
+			  int h = img.bmpinfo.bmpheight;
+
+			 
+			  int Rmax, R, x = 0, y = 0, Rind;
+			  double intensity = 0, maxintensity;
+
+			  if (h < w) Rind = h / 2;
+			  else Rind = w / 2;
+
+			  h_buffer = new int**[w];
+			  for (int i = 0; i<w; i++)
+			  {
+			 	 h_buffer[i] = new int*[h];
+			 	 for (int k = 0; k < h; k++)
+			 		 h_buffer[i][k] = new int[Rind];
+			  }
+
+			  for (int i = 0; i < w; i++)
+			  {
+				  for (int j = 0; j < h; j++)
+				  {
+					  for (int r = 0; r < Rind; r++)
+					  {
+						  h_buffer[i][j][r] = 0;
+					  }
+				  }
+			  }
+
+
+			  int **pixels;
+			  pixels = new int*[w];
+			  for (int i = 0; i < w; i++)
+			  {
+			 	 pixels[i] = new int[h];
+			  }
+
+			  for (int i = 0; i < w; i++)
+			  {
+			 	 for (int j = 0; j < h; j++)
+			 	 {
+			 		 pixels[i][j] = (int)(img.pixels[i][j].red);
+			 	 }
+			  }
+
+			  // circle hough transform
+			  for (int a = 0; a < w; a++)
+			  for (int b = 0; b < h; b++)
+			  {
+			 		if (a >= b) Rmax = b;
+			 		else Rmax = a;
+
+			 		for (R = 1; R <= Rmax; R++)
+			 		{
+			 			for (int theta = 0; theta <= 360; theta++)
+			 			{
+			 				x = a + R*cos(theta);
+			 				y = b + R*sin(theta);
+			 			
+							if (x < w && y < h && pixels[x][y]==255)
+								h_buffer[a][b][R]++;
+			 			}
+			 		}
+			  }
+
+			 // normalization
+			 for (int k = 0; k < w ; k++)
+			 for (int l = 0; l < h; l++)
+			 {
+
+			 	for (int m = 10; m < Rind; m++)
+			 	{
+					if (h_buffer[k][l][m] > 150)
+					{
+						Houghspace->SetPixel(k,l , hColor.Red);
+						rec = RectangleF((k - m), (l - m), 2 * m, 2 * m);
+						_circle->DrawEllipse(Pens::Yellow, rec);
+						
+					}
+			 	}
+			 }
+			  picImage2->Image = Houghspace;
+			  Houghspace->Save("houghspace.bmp");
+			  delete h_buffer;
 }
 };
 }
