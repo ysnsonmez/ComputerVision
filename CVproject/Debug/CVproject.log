@@ -1,5 +1,72 @@
-﻿Build started 19.02.2017 06:50:19.
+﻿Build started 19.02.2017 23:47:07.
+     1>Project "C:\Users\Aleko\Desktop\ComputerVision\CVproject\CVproject.vcxproj" on node 2 (Rebuild target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\\" /AI"C:\Program Files (x86)\Windows Kits\8.1\References\CommonConfiguration\Neutral" /AI"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\Facades\\" /Zi /clr /nologo /W3 /WX- /Od /Oy- /D "WIN32" /D _DEBUG /D "_UNICODE" /D "UNICODE" /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /TP /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\mscorlib.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Data.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Drawing.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Windows.Forms.DataVisualization.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Windows.Forms.dll" /FU"C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.5\System.Xml.dll" /analyze- /errorReport:prompt /clr:nostdlib Form1.cpp
+         Form1.cpp
+     1>c:\users\aleko\desktop\computervision\cvproject\bmplib.h(12): warning C4091: 'typedef ' : ignored on left of 'MATRIX' when no variable is declared
+     1>c:\users\aleko\desktop\computervision\cvproject\bmplib.h(21): warning C4091: 'typedef ' : ignored on left of 'BMPH' when no variable is declared
+     1>c:\users\aleko\desktop\computervision\cvproject\bmplib.h(36): warning C4091: 'typedef ' : ignored on left of 'BMPIH' when no variable is declared
+     1>c:\users\aleko\desktop\computervision\cvproject\bmplib.h(45): warning C4091: 'typedef ' : ignored on left of 'RGBA' when no variable is declared
+     1>c:\users\aleko\desktop\computervision\cvproject\bmplib.h(52): warning C4091: 'typedef ' : ignored on left of 'HSV' when no variable is declared
+     1>c:\users\aleko\desktop\computervision\cvproject\bmplib.h(59): warning C4091: 'typedef ' : ignored on left of 'BMP' when no variable is declared
+     1>c:\users\aleko\desktop\computervision\cvproject\Funcs.h(483): warning C4305: '=' : truncation from 'int' to 'unsigned char'
+     1>c:\users\aleko\desktop\computervision\cvproject\Funcs.h(483): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(566): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(570): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(760): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(760): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(761): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(761): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(762): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(762): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(763): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(763): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(764): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(764): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(765): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(765): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(766): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(766): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(767): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(767): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(807): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(807): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(808): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(808): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(809): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(809): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(810): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(810): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(811): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(811): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(812): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(812): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(813): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(813): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(814): warning C4305: '=' : truncation from '__int64' to 'int'
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(814): warning C4309: '=' : truncation of constant value
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1313): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1314): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1358): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1386): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1396): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1400): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1412): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1416): warning C4244: 'argument' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1369): warning C4101: 'kx' : unreferenced local variable
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1369): warning C4101: 'ky' : unreferenced local variable
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1505): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1506): warning C4244: '=' : conversion from 'double' to 'int', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1524): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>c:\users\aleko\desktop\computervision\cvproject\Form1.h(1454): warning C4101: 'maxintensity' : unreferenced local variable
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /Zi /clr /nologo /W3 /WX- /Od /Oy- /D "WIN32" /D _DEBUG /D "_UNICODE" /D "UNICODE" /EHa /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /TP /analyze- /errorReport:prompt "C:\Users\Aleko\AppData\Local\Temp\.NETFramework,Version=v4.5.AssemblyAttributes.cpp"
+         .NETFramework,Version=v4.5.AssemblyAttributes.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Aleko\Desktop\ComputerVision\Debug\CVproject.exe" /INCREMENTAL /NOLOGO /ASSEMBLYRESOURCE:Debug\CVproject.Form1.resources /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:\Users\Aleko\Desktop\ComputerVision\Debug\CVproject.pdb" /ASSEMBLYDEBUG /TLBID:1 /DYNAMICBASE /FIXED:NO /NXCOMPAT /MACHINE:X86 Debug\Form1.obj
+         "Debug\.NETFramework,Version=v4.5.AssemblyAttributes.obj"
+         CVproject.vcxproj -> C:\Users\Aleko\Desktop\ComputerVision\Debug\CVproject.exe
+     1>Done Building Project "C:\Users\Aleko\Desktop\ComputerVision\CVproject\CVproject.vcxproj" (Rebuild target(s)).
 
 Build succeeded.
 
-Time Elapsed 00:00:00.03
+Time Elapsed 00:00:03.78
